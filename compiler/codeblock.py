@@ -59,6 +59,63 @@ class CodeBlock:
         return self.name
 
 
+class ClassBlock:
+    instances = []
+    keyword = 'class'
+
+    def __init__(self, name):
+        self.instances.append(self)
+
+        self.name = self.name = name.strip()
+        self.children = []
+
+    @classmethod
+    def read_from_raw(cls, raw_text):
+        """raw_text should be code, in form of "keyword Name{...}" """
+        class_statement_end = raw_text.find(cls.keyword) + len(cls.keyword)
+        if class_statement_end == len(cls.keyword) - 1:
+            raise Exception(f"Can't compile {cls.keyword}!")  # TODO: line and row reference
+
+        text = raw_text[class_statement_end:]
+
+        first_brace = text.find('{')
+        app_name = text[:first_brace].strip()
+
+        text = text[first_brace + 1:-1]  # text wout braces
+
+        return app_name, cls.split_by_braces(text)
+
+    @classmethod
+    def split_by_braces(cls, text):
+        """Takes the {...} part and returns a list of Codeblocks"""
+        code_blocks = []
+        expexted_character = '{'
+        name = ''
+        content = ''
+        for letter in text:
+            if expexted_character == '{':
+                if expexted_character == letter:
+                    expexted_character = '}'
+                else:
+                    name += letter
+            elif expexted_character == '}':
+                if expexted_character == letter:
+                    code_blocks.append(cls(name, content))
+                    expexted_character = ';'
+                else:
+                    content += letter
+            elif expexted_character == ';' == letter:
+                name = ''
+                content = ''
+                expexted_character = '{'
+
+        return code_blocks
+
+
+class VueBlock(ClassBlock):
+    keyword = 'vue'
+
+
 class MethodLikeBlock(CodeBlock):
     name = ""
     list_of_instances = []

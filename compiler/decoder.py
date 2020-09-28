@@ -1,7 +1,7 @@
-import render_actions as ra
+from compiler import render_actions as ra
 from pathlib import Path
 
-from codeblock import CodeBlock
+from compiler.codeblock import CodeBlock
 
 
 class Decoder:
@@ -27,10 +27,10 @@ class Decoder:
 
         self.method_like_blocks = {}
 
-    def run_checks(self):
+    def _run_checks(self):
         pass
 
-    def _render_file(self):
+    def _render_vue_file(self):
         """for now it renders one file"""
 
         app_name, code_blocks = CodeBlock.read_from_a_file(self.input_path)
@@ -51,8 +51,8 @@ class Decoder:
         return start__string + join_string.join(map(lambda x: x.rendered, code_blocks)) + end_string
 
     def compile_file(self):
-        self.run_checks()
-        self.output_path.write_text(self._render_file())
+        self._run_checks()
+        self.output_path.write_text(self._render_vue_file())
         print("File compiled successfully.")
 
 
